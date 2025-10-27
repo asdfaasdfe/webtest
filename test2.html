@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인터랙티브 포토 갤러리</title>
+   
+</head>
+<body>
+    <div class="loading">갤러리를 준비중입니다...</div>
+    <div class="custom-cursor"></div>
+    
+    <div class="container">
+        <div class="background"></div>
+        <div class="photo-container" id="photoContainer">
+            <!-- 사진들이 여기에 동적으로 추가됩니다 -->
+        </div>
+    </div>
+
+    <script>
+        // 샘플 이미지 데이터 (실제로는 여러분의 이미지로 교체해주세요)
+        const photos = [
+            { src: 'https://picsum.photos/120/90?random=1', number: 1 },
+            { src: 'https://picsum.photos/100/120?random=2', number: 22 },
+            { src: 'https://picsum.photos/110/80?random=3', number: 45 },
+            { src: 'https://picsum.photos/90/110?random=4', number: 68 },
+            { src: 'https://picsum.photos/130/95?random=5', number: 103 },
+            { src: 'https://picsum.photos/105/125?random=6', number: 127 },
+            { src: 'https://picsum.photos/125/85?random=7', number: 164 },
+            { src: 'https://picsum.photos/95/105?random=8', number: 205 },
+            { src: 'https://picsum.photos/115/95?random=9', number: 33 },
+            { src: 'https://picsum.photos/100/100?random=10', number: 50 },
+            { src: 'https://picsum.photos/120/110?random=11', number: 81 },
+            { src: 'https://picsum.photos/110/90?random=12', number: 116 },
+            { src: 'https://picsum.photos/105/115?random=13', number: 150 },
+            { src: 'https://picsum.photos/125/100?random=14', number: 222 },
+            { src: 'https://picsum.photos/90/120?random=15', number: 257 },
+            { src: 'https://picsum.photos/135/85?random=16', number: 15 },
+            { src: 'https://picsum.photos/100/95?random=17', number: 78 },
+            { src: 'https://picsum.photos/115/105?random=18', number: 96 },
+            { src: 'https://picsum.photos/95/125?random=19', number: 117 },
+            { src: 'https://picsum.photos/120/80?random=20', number: 136 }
+        ];
+
+        let mouseX = 0;
+        let mouseY = 0;
+        let currentX = 0;
+        let currentY = 0;
+
+        // DOM 요소들
+        const photoContainer = document.getElementById('photoContainer');
+        const background = document.querySelector('.background');
+        const cursor = document.querySelector('.custom-cursor');
+        const loading = document.querySelector('.loading');
+
+        // 사진 생성 함수
+        function createPhoto(photoData, index) {
+            const photo = document.createElement('div');
+            photo.className = 'photo';
+            
+            // 3D 공간에서의 랜덤 위치 설정
+            const x = Math.random() * (window.innerWidth - 150);
+            const y = Math.random() * (window.innerHeight - 150);
+            const z = Math.random() * 300 - 150; // -150px ~ 150px 깊이
+            
+            photo.style.left = x + 'px';
+            photo.style.top = y + 'px';
+            photo.style.width = photoData.src.includes('120/90') ? '120px' : 
+                              photoData.src.includes('100/120') ? '100px' : '110px';
+            photo.style.height = photoData.src.includes('120/90') ? '90px' : 
+                               photoData.src.includes('100/120') ? '120px' : '90px';
+            
+            // 초기 3D 변환 적용
+            photo.style.transform = `translateZ(${z}px) rotateY(${Math.random() * 20 - 10}deg) rotateX(${Math.random() * 10 - 5}deg)`;
+            
+            photo.innerHTML = `
+                <img src="${photoData.src}" alt="Photo ${photoData.number}" loading="lazy">
+                <div class="photo-number">${photoData.number}</div>
+            `;
+            
+            // 각 사진마다 다른 움직임 속도와 3D 속성 설정
+            photo.dataset.speed = (Math.random() * 0.8 + 0.4).toFixed(2);
+            photo.dataset.initialZ = z;
+            photo.dataset.rotateSpeed = (Math.random() * 0.5 + 0.2).toFixed(2);
+            
+            return photo;
+        }
+
+        // 사진들을 DOM에 추가
+        function initializePhotos() {
+            photos.forEach((photoData, index) => {
+                const photo = createPhoto(photoData, index);
+                photoContainer.appendChild(photo);
+            });
+            
+            // 로딩 메시지 제거
+            setTimeout(() => {
+                loading.style.display = 'none';
+            }, 1000);
+        }
+
+        // 마우스 움직임 처리
+        function handleMouseMove(e) {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            // 커스텀 커서 위치 업데이트
+            cursor.style.left = mouseX - 10 + 'px';
+            cursor.style.top = mouseY - 10 + 'px';
+        }
+
+        // 애니메이션 루프
+        function animate() {
+            // 부드러운 움직임을 위한 보간
+            currentX += (mouseX - currentX) * 0.03;
+            currentY += (mouseY - currentY) * 0.03;
+            
+            // 배경 3D 움직임
+            const bgMoveX = (currentX - window.innerWidth / 2) * 0.05;
+            const bgMoveY = (currentY - window.innerHeight / 2) * 0.05;
+            const bgRotateY = (currentX - window.innerWidth / 2) * 0.02;
+            const bgRotateX = -(currentY - window.innerHeight / 2) * 0.01;
+            
+            background.style.transform = `
+                translate3d(${bgMoveX}px, ${bgMoveY}px, 0px) 
+                rotateX(${bgRotateX}deg) 
+                rotateY(${bgRotateY}deg)
+            `;
+            
+            // 각 사진들의 3D 패럴랙스 효과
+            const allPhotos = document.querySelectorAll('.photo');
+            allPhotos.forEach((photo, index) => {
+                const speed = parseFloat(photo.dataset.speed);
+                const rotateSpeed = parseFloat(photo.dataset.rotateSpeed);
+                const initialZ = parseFloat(photo.dataset.initialZ);
+                const rect = photo.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                // 마우스와의 거리에 따른 3D 움직임 계산
+                const deltaX = (currentX - centerX) * speed * 0.15;
+                const deltaY = (currentY - centerY) * speed * 0.15;
+                const deltaZ = Math.sin((currentX + currentY + index * 100) * 0.001) * 50;
+                
+                // 3D 회전 효과 (더 강화)
+                const rotateX = (currentY - centerY) * rotateSpeed * 0.03;
+                const rotateY = (currentX - centerX) * rotateSpeed * 0.05;
+                const rotateZ = Math.sin((currentX + index * 50) * 0.002) * 5;
+                
+                // 마우스 거리에 따른 스케일 효과
+                const distance = Math.sqrt(
+                    Math.pow(currentX - centerX, 2) + Math.pow(currentY - centerY, 2)
+                );
+                const maxDistance = Math.sqrt(Math.pow(window.innerWidth, 2) + Math.pow(window.innerHeight, 2));
+                const scaleEffect = 1 + (1 - distance / maxDistance) * 0.2;
+                
+                photo.style.transform = `
+                    translate3d(${deltaX}px, ${deltaY}px, ${initialZ + deltaZ}px) 
+                    rotateX(${rotateX}deg) 
+                    rotateY(${rotateY}deg)
+                    rotateZ(${rotateZ}deg)
+                    scale(${scaleEffect})
+                `;
+            });
+            
+            requestAnimationFrame(animate);
+        }
+
+        // 이벤트 리스너 등록
+        document.addEventListener('mousemove', handleMouseMove);
+        
+        // 페이지 로드 시 초기화
+        window.addEventListener('load', () => {
+            initializePhotos();
+            animate();
+        });
+
+        // 창 크기 변경 시 사진 위치 재조정
+        window.addEventListener('resize', () => {
+            const allPhotos = document.querySelectorAll('.photo');
+            allPhotos.forEach(photo => {
+                const x = Math.random() * (window.innerWidth - 150);
+                const y = Math.random() * (window.innerHeight - 150);
+                photo.style.left = x + 'px';
+                photo.style.top = y + 'px';
+            });
+        });
+    </script>
+</body>
+</html>
