@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Supernormalgirls Break Sequencer</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="mark">SNG</span>
+        <div>
+          <strong>Supernormalgirls Break Sequencer</strong>
+        </div>
+      </div>
+      <div class="transport">
+        <button id="xpModeBtn" title="Light mode">LIGHT MODE</button>
+        <button id="rewindBtn" title="Rewind">|&lt;</button>
+        <button id="playBtn" class="primary icon-button" title="Play" aria-label="Play">&#9658;</button>
+        <button id="stopBtn" class="icon-button" title="Stop" aria-label="Stop">&#9632;</button>
+        <output id="timeReadout">001:01</output>
+      </div>
+    </header>
+
+    <section class="main-grid">
+      <section class="preview-panel">
+        <div class="panel-head">
+          <span>PREVIEW</span>
+          <strong id="lightMode">BASE BEAT LOCK</strong>
+        </div>
+        <div class="preview-body">
+          <canvas id="stageCanvas" width="720" height="720" aria-label="character lighting preview"></canvas>
+          <div class="expression-bar" aria-label="expression controls">
+            <button class="expression-btn active" data-expression="normal">-_-</button>
+            <button class="expression-btn" data-expression="spark">&gt;_&lt;</button>
+            <button class="expression-btn" data-expression="shock">O_O</button>
+            <button class="expression-btn" data-expression="cry">T_T</button>
+          </div>
+        </div>
+      </section>
+      <div class="resize-handle" id="previewResize" role="separator" aria-label="resize preview panel"></div>
+
+      <section class="editor-panel">
+        <div class="panel-head sequence-head">
+          <span>SEQUENCE CORE</span>
+          <div class="sequence-tools">
+            <button id="randomizeBtn">GENERATE</button>
+            <button id="clearBtn">CLEAR</button>
+            <label>BPM <input id="bpmInput" type="number" min="70" max="240" value="168"></label>
+            <label><input id="accelerateOn" type="checkbox"> ACCEL</label>
+            <input id="accelerateRate" type="range" min="0" max="1" step="0.01" value="0.24" title="Acceleration rate">
+          </div>
+        </div>
+        <div class="track-tools" aria-label="track paint tools">
+          <button class="track-tool active" data-track="kick">KICK</button>
+          <button class="track-tool" data-track="scat">SCAT</button>
+          <button class="track-tool" data-track="beat">BASE BEAT</button>
+          <button class="track-tool" data-track="light">STROBE FX</button>
+        </div>
+        <div class="arrangement">
+          <div class="track-names">
+            <span>Kick</span>
+            <span>Scat</span>
+            <span>Base Beat</span>
+            <span>Strobe FX</span>
+          </div>
+          <canvas id="arrangeCanvas" width="1200" height="160"></canvas>
+        </div>
+        <div class="roll-wrap">
+          <div class="keys" id="keys"></div>
+          <canvas id="pianoCanvas" width="1160" height="430" aria-label="click or drag note grid"></canvas>
+        </div>
+        <div class="light-lane">
+          <div class="lane-label">
+            <strong>SIGNAL WAVE</strong>
+            <span>beat-reactive monitor</span>
+          </div>
+          <canvas id="automationCanvas" width="1160" height="130"></canvas>
+        </div>
+      </section>
+
+      <aside class="control-panel">
+        <div class="panel-head">
+          <span>CONTROL BUS</span>
+        </div>
+
+        <section class="control-group">
+          <h2>Layer Switches</h2>
+          <label class="toggle-row">
+            <input id="kickOn" type="checkbox" checked>
+            <span>Kick</span>
+          </label>
+          <label class="toggle-row">
+            <input id="scatOn" type="checkbox" checked>
+            <span>Scat</span>
+          </label>
+          <label class="toggle-row">
+            <input id="lightCutOn" type="checkbox" checked>
+            <span>Strobe FX</span>
+          </label>
+        </section>
+
+        <section class="control-group">
+          <h2>Light Surface</h2>
+          <canvas id="colorWheel" width="240" height="240" aria-label="light color wheel"></canvas>
+          <label class="slider-row">Brightness <input id="lightPower" type="range" min="0" max="1" step="0.01" value="0.78"></label>
+          <label class="slider-row">Impact <input id="beatFlash" type="range" min="0" max="1" step="0.01" value="0.86"></label>
+          <div class="light-actions">
+            <button id="shutdownBtn" type="button">SHUTDOWN</button>
+            <button id="rainbowBtn" type="button">RAINBOW</button>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <footer class="status">
+      <span>Select a track, then click the grid to place that event.</span>
+      <span>Kick, scat, base beat, and strobe FX are synthesized in-browser.</span>
+      <span>Resize is stabilized with a resize observer, not per-frame canvas growth.</span>
+    </footer>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
